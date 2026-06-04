@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cyber Terminal</title>
+
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+body{
+    background:black;
+    overflow:hidden;
+    font-family:Consolas, monospace;
+}
+
+canvas{
+    position:fixed;
+    top:0;
+    left:0;
+    z-index:1;
+}
+
+#terminal{
+    position:fixed;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+    z-index:2;
+    color:#00ff41;
+    padding:15px;
+    overflow:hidden;
+    pointer-events:none;
+    font-size:12px;
+    text-shadow:0 0 5px #00ff41;
+}
+
+#warning{
+    position:fixed;
+    top:10px;
+    right:10px;
+    color:red;
+    font-weight:bold;
+    font-size:18px;
+    z-index:3;
+    animation:blink .5s infinite;
+    text-shadow:0 0 10px red;
+}
+
+@keyframes blink{
+    50%{opacity:0;}
+}
+
+#startScreen{
+    position:fixed;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+    background:black;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    z-index:9999;
+}
+
+#startBtn{
+    background:black;
+    color:#00ff41;
+    border:2px solid #00ff41;
+    padding:20px 40px;
+    font-size:24px;
+    font-family:Consolas, monospace;
+    cursor:pointer;
+    box-shadow:0 0 20px #00ff41;
+}
+
+#startBtn:hover{
+    box-shadow:0 0 40px #00ff41;
+}
+
+#boot{
+    position:fixed;
+    top:50%;
+    left:50%;
+    transform:translate(-50%,-50%);
+    color:#00ff41;
+    font-size:24px;
+    display:none;
+    z-index:9998;
+    text-align:center;
+}
+
+#finalImage{
+    position:fixed;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+    background:black;
+    display:none;
+    justify-content:center;
+    align-items:center;
+    z-index:99999;
+}
+
+#finalImage img{
+    width:100%;
+    height:100%;
+    object-fit:cover;
+}
+
+#finalImage h1{
+    position:absolute;
+    bottom:40px;
+    width:100%;
+    text-align:center;
+    color:white;
+    font-size:40px;
+    text-shadow:0 0 20px black;
+}
+</style>
+</head>
+<body>
+
+<div id="startScreen">
+    <button id="startBtn">START TERMINAL</button>
+</div>
+
+<div id="boot"></div>
+
+<div id="warning">SYSTEM ALERT</div>
+
+<canvas id="matrix"></canvas>
+
+<div id="terminal"></div>
+
+<div id="finalImage">
+    <img src="surprise.jpg" alt="Surprise">
+    <h1>HAHAHAHA </h1>
+</div>
+
+<script>
+
+const startBtn = document.getElementById("startBtn");
+const startScreen = document.getElementById("startScreen");
+const boot = document.getElementById("boot");
+
+startBtn.addEventListener("click", async () => {
+
+    try{
+        if(document.documentElement.requestFullscreen){
+            await document.documentElement.requestFullscreen();
+        }
+    }catch(err){}
+
+    startScreen.style.display = "none";
+    boot.style.display = "block";
+
+    const bootLines = [
+        "BOOTING SYSTEM...",
+        "LOADING MODULES...",
+        "INITIALIZING INTERFACE...",
+        "STARTING TERMINAL..."
+    ];
+
+    let i = 0;
+
+    function nextBoot(){
+        if(i < bootLines.length){
+            boot.innerHTML += bootLines[i] + "<br>";
+            i++;
+            setTimeout(nextBoot, 800);
+        }else{
+            setTimeout(()=>{
+                boot.style.display = "none";
+                startEffects();
+            },1000);
+        }
+    }
+
+    nextBoot();
+});
+
+function startEffects(){
+
+    const canvas = document.getElementById("matrix");
+    const ctx = canvas.getContext("2d");
+
+    canvas.width = innerWidth;
+    canvas.height = innerHeight;
+
+    const chars =
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@$#%&*<>?/[]{}";
+
+    const fontSize = 14;
+    const columns = Math.floor(canvas.width / fontSize);
+
+    const drops = [];
+
+    for(let i=0;i<columns;i++){
+        drops[i] = 1;
+    }
+
+    function matrix(){
+
+        ctx.fillStyle = "rgba(0,0,0,0.08)";
+        ctx.fillRect(0,0,canvas.width,canvas.height);
+
+        ctx.fillStyle = "#00ff41";
+        ctx.font = fontSize + "px monospace";
+
+        for(let i=0;i<drops.length;i++){
+
+            const text =
+            chars[Math.floor(Math.random()*chars.length)];
+
+            ctx.fillText(
+                text,
+                i*fontSize,
+                drops[i]*fontSize
+            );
+
+            if(
+                drops[i]*fontSize > canvas.height &&
+                Math.random() > 0.975
+            ){
+                drops[i] = 0;
+            }
+
+            drops[i]++;
+        }
+    }
+
+    setInterval(matrix,25);
+
+    const terminal =
+    document.getElementById("terminal");
+
+    function randomHex(len){
+
+        let result = "";
+        const chars = "ABCDEF0123456789";
+
+        for(let i=0;i<len;i++){
+            result += chars[
+                Math.floor(Math.random()*chars.length)
+            ];
+        }
+
+        return result;
+    }
+
+    const messages = [
+        "INITIALIZING MODULE",
+        "LOADING NETWORK MAP",
+        "PARSING DATA STREAM",
+        "VERIFYING PROTOCOL",
+        "ESTABLISHING CONNECTION",
+        "GENERATING TOKEN",
+        "ACCESSING ARCHIVE",
+        "DECRYPTING PAYLOAD",
+        "SYNCING NODES",
+        "PROCESSING REQUEST"
+    ];
+
+    setInterval(()=>{
+
+        const msg =
+        "[" + new Date().toLocaleTimeString() + "] "
+        + messages[Math.floor(Math.random()*messages.length)]
+        + " :: "
+        + randomHex(16);
+
+        terminal.innerHTML += msg + "<br>";
+
+        const lines =
+        terminal.innerHTML.split("<br>");
+
+        if(lines.length > 250){
+            terminal.innerHTML =
+            lines.slice(-200).join("<br>");
+        }
+
+    },40);
+
+    setTimeout(() => {
+
+        document.getElementById("matrix").style.display = "none";
+        document.getElementById("terminal").style.display = "none";
+        document.getElementById("warning").style.display = "none";
+
+        document.getElementById("finalImage").style.display = "flex";
+
+    }, 15000);
+
+    window.addEventListener("resize",()=>{
+        canvas.width = innerWidth;
+        canvas.height = innerHeight;
+    });
+}
+
+</script>
+
+</body>
+</html>
